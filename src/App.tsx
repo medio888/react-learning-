@@ -2,10 +2,11 @@ import { useState } from 'react'
 
 function App() {
   const [name, setName] = useState("Meder")
-  const [pokemon, setPokemon] = useState(null)
+  const [pokemon, setPokemon] = useState(null);
 
-  const handleSearchPokemon = async() => {
-    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+
+  const loadPokemon = async nameOrId => {
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${nameOrId}`);
     const data = await response.json();
 
     setPokemon({
@@ -15,7 +16,17 @@ function App() {
       weight: data.weight,
       types: data.types.map(t => t.type.name),
     })
+  };
+  
+  const handleSearchPokemon = () => {
+    loadPokemon(name);
   }
+
+  const handleRandomPokemon = () => {
+    const randomId = Math.floor(Math.random() * 898) + 1;
+    loadPokemon(randomId);
+  }
+
   return (
     <>
       <h1>Pokémon Viewer</h1>
@@ -24,7 +35,7 @@ function App() {
       <div className='controls'>
         <input id='pokemonInput' type='text' placeholder='Например: pikachu' onChange={(e) => setName(e.target.value)}/>
         <button id='loadBtn' onClick={handleSearchPokemon}>Загрузит</button>
-        <button id='randomBtn'>🎲 Random</button>
+        <button id='randomBtn' onClick={handleRandomPokemon}>🎲 Random</button>
       </div>
 
       <p id='status' className='status'></p>
@@ -39,7 +50,9 @@ function App() {
             <p>Вес: {pokemon.weight}</p>
 
           <div className='types'>
-            <span className='type'>Thunder</span>
+            {pokemon.types.map(type => (
+              <span className='type'>{type}</span>
+            ))}
           </div>
         </div>
         ) : (
